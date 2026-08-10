@@ -1,5 +1,8 @@
 export const ENV = {
-  appId: process.env.VITE_APP_ID ?? "",
+  // Falls back to a stable local value when there's no Manus OAuth app
+  // configured, so locally-issued session tokens always have a non-empty
+  // appId (required by verifySession's payload check).
+  appId: process.env.VITE_APP_ID || "local-app",
   cookieSecret: process.env.JWT_SECRET ?? "",
   databaseUrl: process.env.DATABASE_URL ?? "",
   oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
