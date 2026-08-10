@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1786297126134,
+      "tag": "0000_icy_landau",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1786297355893,
+      "tag": "0001_fine_adam_destine",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1786299453186,
+      "tag": "0002_adorable_argent",
+      "breakpoints": true
+    }
+  ]
+}
