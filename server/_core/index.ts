@@ -4,7 +4,7 @@ import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
-import { ensureAdminUser } from "../db";
+import { ensureAdminUser, seedEquipmentIfEmpty } from "../db";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -34,6 +34,12 @@ async function startServer() {
     await ensureAdminUser();
   } catch (error) {
     console.error("[Auth] Failed to ensure admin user (will retry on next request):", error);
+  }
+
+  try {
+    await seedEquipmentIfEmpty();
+  } catch (error) {
+    console.error("[Seed] Failed to seed equipment (will retry on next boot):", error);
   }
 
   const app = express();

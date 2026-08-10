@@ -10,6 +10,7 @@ import {
   users,
 } from "../drizzle/schema";
 import {
+  SOURCE_EQUIPMENT,
   STAGE_DEFINITIONS,
   type StageKey,
   type StageStatus,
@@ -173,6 +174,44 @@ export async function getEquipmentById(id: number) {
     .where(eq(procurementStages.equipmentId, id))
     .orderBy(asc(procurementStages.id));
   return { ...item, stages };
+}
+
+/**
+ * Seeds the original 52-item equipment budget the first time the app runs
+ * against a fresh database. No-ops if equipment_items already has rows, so
+ * it's safe to call on every boot.
+ */
+export async function seedEquipmentIfEmpty() {
+  const db = await getDb();
+  if (!db) return;
+
+  const [row] = await db.select({ count: sql<number>`count(*)` }).from(equipmentItems);
+  if (Number(row?.count ?? 0) > 0) return;
+
+  await db.transaction(async tx => {
+    for (const item of SOURCE_EQUIPMENT) {
+      const [insertResult] = await tx.insert(equipmentItems).values({
+        itemNumber: item.itemNumber,
+        name: item.name,
+        brand: item.brand,
+        model: item.model,
+        quantity: item.quantity,
+        unitValueCents: item.unitValueCents,
+        totalValueCents: item.totalValueCents,
+      });
+      const equipmentId = Number(insertResult.insertId);
+
+      await tx.insert(procurementStages).values(
+        STAGE_DEFINITIONS.map(stage => ({
+          equipmentId,
+          stageKey: stage.key,
+          status: "pending" as const,
+        })),
+      );
+    }
+  });
+
+  console.log(`[Seed] Inserted ${SOURCE_EQUIPMENT.length} equipment items with default stages.`);
 }
 
 export type EquipmentWriteInput = {
