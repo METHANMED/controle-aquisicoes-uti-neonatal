@@ -186,11 +186,15 @@ function AccessDialog({ user, currentUserId, onOpenChange }: { user: AccessUser 
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     if (!user) return;
     setRole(user.role); setIsActive(user.isActive); setPermissions(user.permissions);
     setCompanyName(user.supplierProfile?.companyName ?? ""); setCnpj(user.supplierProfile?.cnpj ?? ""); setContactPhone(user.supplierProfile?.contactPhone ?? "");
+    setName(user.name ?? ""); setEmail(user.email ?? ""); setNewPassword("");
   }, [user]);
 
   const mutation = trpc.access.updateUser.useMutation({
@@ -201,8 +205,19 @@ function AccessDialog({ user, currentUserId, onOpenChange }: { user: AccessUser 
   const save = async () => {
     if (!user) return;
     try {
-      await mutation.mutateAsync({ userId: user.id, role, isActive, permissions, companyName: companyName.trim() || null, cnpj: cnpj.trim() || null, contactPhone: contactPhone.trim() || null });
-      toast.success("Acesso atualizado."); onOpenChange(false);
+      await mutation.mutateAsync({
+        userId: user.id,
+        role,
+        isActive,
+        permissions,
+        companyName: companyName.trim() || null,
+        cnpj: cnpj.trim() || null,
+        contactPhone: contactPhone.trim() || null,
+        name: name.trim() || null,
+        email: email.trim() || null,
+        newPassword: newPassword.trim() || null,
+      });
+      toast.success("Acesso atualizado."); setNewPassword(""); onOpenChange(false);
     } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível atualizar o acesso."); }
   };
 
@@ -212,6 +227,9 @@ function AccessDialog({ user, currentUserId, onOpenChange }: { user: AccessUser 
       <DialogContent className="max-h-[92vh] overflow-y-auto rounded-2xl sm:max-w-3xl">
         <DialogHeader><DialogTitle className="text-xl">Configurar acesso</DialogTitle><DialogDescription>{user?.name || user?.email} · as alterações passam a valer nas próximas consultas.</DialogDescription></DialogHeader>
         <div className="grid gap-5 py-5 sm:grid-cols-2">
+          <div className="space-y-2"><Label htmlFor="edit-name">Nome</Label><Input id="edit-name" value={name} onChange={event => setName(event.target.value)} placeholder="Nome da pessoa" /></div>
+          <div className="space-y-2"><Label htmlFor="edit-email">Email</Label><Input id="edit-email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="pessoa@exemplo.com" /></div>
+          <div className="space-y-2 sm:col-span-2"><Label htmlFor="edit-password">Nova senha</Label><Input id="edit-password" type="password" value={newPassword} onChange={event => setNewPassword(event.target.value)} placeholder="Deixe em branco para manter a senha atual" /></div>
           <div className="space-y-2"><Label>Perfil</Label><Select value={role} onValueChange={value => changeRole(value as Role)} disabled={ownAccess}><SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="admin">Gerenciamento</SelectItem><SelectItem value="user">Acompanhamento</SelectItem><SelectItem value="supplier">Fornecedor</SelectItem></SelectContent></Select></div>
           <div className="flex items-center justify-between rounded-xl border p-4"><div><Label>Acesso ativo</Label><p className="mt-1 text-xs text-muted-foreground">Permitir login e consultas.</p></div><Switch checked={isActive} onCheckedChange={setIsActive} disabled={ownAccess} /></div>
           {role === "supplier" ? <>

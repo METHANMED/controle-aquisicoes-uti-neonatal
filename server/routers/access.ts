@@ -44,11 +44,27 @@ export const accessRouter = router({
       companyName: nullableText(255),
       cnpj: nullableText(18),
       contactPhone: nullableText(32),
+      name: nullableText(255).optional(),
+      email: z.string().trim().email("Email inválido").nullable().optional(),
+      newPassword: z
+        .string()
+        .trim()
+        .transform(value => value || null)
+        .refine(value => !value || value.length >= 6, "A senha deve ter pelo menos 6 caracteres")
+        .nullable()
+        .optional(),
     }))
-    .mutation(({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       if (input.userId === ctx.user.id && (input.role !== "admin" || !input.isActive)) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "O administrador não pode remover o próprio acesso." });
       }
-      return updateUserAccess({ ...input, updatedBy: ctx.user.id });
+      try {
+        return await updateUserAccess({ ...input, updatedBy: ctx.user.id });
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error instanceof Error ? error.message : "Não foi possível atualizar o acesso.",
+        });
+      }
     }),
 });

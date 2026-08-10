@@ -396,11 +396,29 @@ export async function updateUserAccess(input: {
   companyName: string | null;
   cnpj: string | null;
   contactPhone: string | null;
+  name?: string | null;
+  email?: string | null;
+  newPassword?: string | null;
   updatedBy: number;
 }) {
   const db = await requireDb();
+
+  if (input.email) {
+    const existing = await getUserByEmail(input.email.trim().toLowerCase());
+    if (existing && existing.id !== input.userId) {
+      throw new Error("Já existe uma conta com este email.");
+    }
+  }
+
   await db.transaction(async tx => {
-    await tx.update(users).set({ role: input.role, isActive: input.isActive }).where(eq(users.id, input.userId));
+    const profileUpdate: Record<string, unknown> = { role: input.role, isActive: input.isActive };
+    if (input.name !== undefined) profileUpdate.name = input.name;
+    if (input.email) profileUpdate.email = input.email.trim().toLowerCase();
+    if (input.newPassword) {
+      const { hashPassword } = await import("./_core/password");
+      profileUpdate.passwordHash = await hashPassword(input.newPassword);
+    }
+    await tx.update(users).set(profileUpdate).where(eq(users.id, input.userId));
     const permissions = input.role === "admin"
       ? defaultPermissionsForRole("admin")
       : { ...input.permissions, canViewBudgetValues: false };
