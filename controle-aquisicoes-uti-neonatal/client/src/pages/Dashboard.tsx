@@ -94,7 +94,7 @@ export default function Dashboard() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Contratação CASSEMS</p>
                 <CardTitle className="mt-1 text-lg tracking-[-0.025em]">UTI Neonatal · Corumbá</CardTitle>
               </div>
-              <div className="grid h-14 w-24 place-items-center rounded-xl border bg-white px-2"><img src="/manus-storage/logo-cassems-web_0e1632b8.png" alt="CASSEMS" className="h-10 w-full object-contain" /></div>
+              <div className="grid h-14 w-24 place-items-center rounded-xl border bg-white px-2"><img src="/branding/logo-cassems.png" alt="CASSEMS" className="h-10 w-full object-contain" /></div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">

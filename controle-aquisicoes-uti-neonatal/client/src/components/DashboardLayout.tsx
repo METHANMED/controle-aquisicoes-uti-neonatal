@@ -119,15 +119,9 @@ function LoginExperience() {
   return (
     <main className="min-h-screen bg-[#ecf2ef] p-3 sm:p-5 lg:p-7">
       <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[1500px] overflow-hidden rounded-[1.75rem] bg-white shadow-[0_30px_90px_rgba(16,49,61,0.15)] sm:min-h-[calc(100vh-2.5rem)] lg:grid-cols-[1.08fr_0.92fr]">
-        <section className="relative hidden overflow-hidden lg:block">
-          <img
-            src="/manus-storage/uti-neonatal-acesso_5b68c6ad.jpg"
-            alt="Ambiente moderno de unidade neonatal"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-[#123745]/70" />
+        <section className="relative hidden overflow-hidden bg-[linear-gradient(135deg,#0f5f5a_0%,#123745_60%,#0b2530_100%)] lg:block">
           <div className="absolute left-14 top-12 rounded-2xl bg-white px-5 py-3 shadow-xl shadow-black/10">
-            <img src="/manus-storage/logo-methanmed-web_dd944cd7.png" alt="MethanMed" className="h-11 w-auto object-contain" />
+            <img src="/branding/logo-methanmed.png" alt="MethanMed" className="h-11 w-auto object-contain" />
           </div>
           <div className="absolute inset-x-0 bottom-0 p-14 text-white">
             <Badge className="mb-6 border-white/25 bg-white/10 text-white hover:bg-white/10">
@@ -145,7 +139,7 @@ function LoginExperience() {
         <section className="subtle-grid flex items-center justify-center px-6 py-14 sm:px-12 lg:px-16">
           <div className="w-full max-w-md enter-soft">
             <div className="mb-12">
-              <img src="/manus-storage/logo-methanmed-web_dd944cd7.png" alt="MethanMed" className="h-12 w-auto max-w-[240px] object-contain" />
+              <img src="/branding/logo-methanmed.png" alt="MethanMed" className="h-12 w-auto max-w-[240px] object-contain" />
               <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Portal de fornecimento</p>
             </div>
 
@@ -165,7 +159,7 @@ function LoginExperience() {
                 Acesso por perfil
               </div>
               <div className="flex items-center gap-3 rounded-xl border bg-white/70 p-3">
-                <img src="/manus-storage/logo-cassems-web_0e1632b8.png" alt="CASSEMS" className="h-10 w-16 shrink-0 object-contain" />
+                <img src="/branding/logo-cassems.png" alt="CASSEMS" className="h-10 w-16 shrink-0 object-contain" />
                 <div><p className="font-semibold text-foreground">CASSEMS</p><p className="mt-0.5 text-[10px]">Adquirente</p></div>
               </div>
             </div>
@@ -203,7 +197,7 @@ function AuthenticatedLayout({ children }: { children: ReactNode }) {
       <Sidebar collapsible="icon" className="border-r-0">
         <SidebarHeader className="border-b border-sidebar-border/70 p-4 group-data-[collapsible=icon]:p-3">
           <div className="overflow-hidden rounded-xl bg-white px-3 py-2 shadow-lg shadow-black/10 group-data-[collapsible=icon]:grid group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:place-items-center group-data-[collapsible=icon]:p-1.5">
-            <img src="/manus-storage/logo-methanmed-web_dd944cd7.png" alt="MethanMed" className="h-8 w-full object-contain group-data-[collapsible=icon]:h-7" />
+            <img src="/branding/logo-methanmed.png" alt="MethanMed" className="h-8 w-full object-contain group-data-[collapsible=icon]:h-7" />
           </div>
         </SidebarHeader>
 
@@ -235,7 +229,7 @@ function AuthenticatedLayout({ children }: { children: ReactNode }) {
               <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-sidebar-foreground/40">Adquirente</span>
               <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.12)]" />
             </div>
-            <div className="rounded-xl bg-white px-3 py-2"><img src="/manus-storage/logo-cassems-web_0e1632b8.png" alt="CASSEMS" className="h-10 w-full object-contain" /></div>
+            <div className="rounded-xl bg-white px-3 py-2"><img src="/branding/logo-cassems.png" alt="CASSEMS" className="h-10 w-full object-contain" /></div>
             <p className="mt-3 text-xs font-semibold">Projeto UTI Neonatal</p>
             <div className="mt-2 flex items-center gap-1.5 text-[11px] leading-5 text-sidebar-foreground/50">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
