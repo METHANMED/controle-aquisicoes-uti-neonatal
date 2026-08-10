@@ -1,0 +1,50 @@
+# Project TODO
+
+- [x] Extrair do PDF original a lista completa de equipamentos, quantidades, modelos e marcas disponíveis.
+- [x] Definir tabelas para equipamentos e etapas com integridade referencial, datas de negócio em UTC Unix milissegundos e metadados técnicos em UTC.
+- [x] Manter exatamente seis etapas por item: Aquisição, Link da Nota Fiscal, Envio, Previsão de Entrega, Entrega e Instalação.
+- [x] Permitir status, data e observações independentes em cada uma das seis etapas.
+- [x] Disponibilizar um campo dedicado de URL da nota fiscal em cada equipamento.
+- [x] Implementar autenticação obrigatória por login.
+- [x] Aplicar o perfil Gerenciamento (admin) com permissão para incluir e alterar itens e etapas.
+- [x] Aplicar o perfil Acompanhamento (user) com visualização estritamente somente leitura.
+- [x] Criar painel geral com indicadores de progresso, situação das etapas e visão rápida de todos os itens.
+- [x] Criar listagem pesquisável e filtrável por equipamento, etapa, status e andamento.
+- [x] Criar tela de detalhes do equipamento com modelo, marca, quantidade, nota fiscal e linha do tempo das etapas.
+- [x] Criar formulário de inclusão e edição de equipamentos disponível somente para Gerenciamento.
+- [x] Criar interface de atualização de status, data e observações de cada etapa disponível somente para Gerenciamento.
+- [x] Pré-cadastrar no banco os equipamentos reais extraídos do PDF, sem dados inventados.
+- [x] Aplicar identidade visual premium, tipografia refinada, hierarquia clara, microinterações discretas e componentes consistentes.
+- [x] Garantir acessibilidade, estados de carregamento, estados vazios, feedback de erro/sucesso e navegação por teclado.
+- [x] Validar responsividade em desktop e dispositivos móveis.
+- [x] Criar e executar testes Vitest para regras de permissão, validações e operações principais.
+- [x] Executar verificação de tipos e build de produção sem erros.
+- [x] Revisar visualmente as telas principais antes da entrega.
+- [x] Preparar e hospedar os logos enviados da MethanMed e da CASSEMS para uso responsivo na aplicação.
+- [x] Substituir a marca principal atual pela MethanMed na navegação, tela de acesso e identidade institucional.
+- [x] Identificar a CASSEMS como adquirente dos equipamentos nos cabeçalhos, cartões e contexto do projeto.
+- [x] Validar a nova hierarquia de marca em desktop e celular sem perda de legibilidade.
+- [x] Executar verificação de tipos, testes e build após as alterações de identidade.
+- [x] Remover valores unitários e totais das respostas de consulta entregues ao perfil Acompanhamento.
+- [x] Exibir indicadores, valores do orçamento e valores por equipamento somente ao perfil Gerenciamento.
+- [x] Manter itens, quantidades, etapas e nota fiscal visíveis ao perfil Acompanhamento sem dados financeiros.
+- [x] Criar testes automatizados que garantam a ausência de campos financeiros para usuários não administradores.
+- [x] Validar visualmente as telas e executar tipos, testes e build após a restrição financeira.
+- [x] Adicionar o perfil Fornecedor e manter Gerenciamento como administrador global do sistema.
+- [x] Criar permissões configuráveis por usuário para painel, itens, etapas, notas fiscais, valores do orçamento e cotações.
+- [x] Criar cadastro complementar do fornecedor com empresa e CNPJ opcionais.
+- [x] Criar tabela de cotações por fornecedor e equipamento com valor unitário, marca, modelo, prazo e observações.
+- [x] Garantir que cada fornecedor visualize e altere somente suas próprias cotações.
+- [x] Permitir que o administrador visualize e compare todas as cotações recebidas por item.
+- [x] Criar painel administrativo de usuários com alteração de perfil, ativação e permissões individuais.
+- [x] Criar portal do fornecedor para pesquisar itens e informar ou atualizar valores propostos.
+- [x] Adaptar a navegação para exibir apenas módulos autorizados para cada usuário.
+- [x] Criar testes de isolamento entre fornecedores e de aplicação das permissões configuradas pelo administrador.
+- [x] Validar as novas telas em desktop e celular e executar tipos, testes e build de produção.
+- [ ] Auditar o repositório para identificar segredos, arquivos gerados e dependências exclusivas da infraestrutura Manus.
+- [ ] Criar `.env.example` contendo somente os nomes e descrições das variáveis necessárias, sem valores sensíveis.
+- [ ] Atualizar `README.md` com instalação, banco de dados, migrações, execução, testes, build e publicação fora do Manus.
+- [ ] Documentar o modelo do banco, integrações utilizadas e adaptações necessárias para substituir recursos Manus.
+- [ ] Montar uma cópia limpa com frontend, backend, migrações, configurações, lockfile e documentação, excluindo segredos, logs e artefatos gerados.
+- [ ] Verificar programaticamente que o pacote não contém credenciais nem arquivos de ambiente reais.
+- [ ] Gerar e validar um arquivo ZIP único com todo o código-fonte portátil.
