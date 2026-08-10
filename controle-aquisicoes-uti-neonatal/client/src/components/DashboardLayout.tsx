@@ -21,10 +21,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { startLogin } from "@/const";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
+import { TRPCClientError } from "@trpc/client";
 import { BadgeDollarSign, Boxes, ChevronUp, LayoutDashboard, LogOut, MapPin, Scale, ShieldCheck, UserCog } from "lucide-react";
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 
@@ -45,6 +47,71 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     >
       <AuthenticatedLayout>{children}</AuthenticatedLayout>
     </SidebarProvider>
+  );
+}
+
+function LoginForm() {
+  const utils = trpc.useUtils();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: async () => {
+      setError(null);
+      await utils.auth.me.invalidate();
+    },
+    onError: err => {
+      setError(
+        err instanceof TRPCClientError
+          ? err.message
+          : "Não foi possível entrar. Tente novamente."
+      );
+    },
+  });
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    loginMutation.mutate({ email, password });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-9 space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="login-email">Email</Label>
+        <Input
+          id="login-email"
+          type="email"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={event => setEmail(event.target.value)}
+          placeholder="seu.email@exemplo.com"
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="login-password">Senha</Label>
+        <Input
+          id="login-password"
+          type="password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={event => setPassword(event.target.value)}
+          placeholder="••••••••"
+        />
+      </div>
+      {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
+      <Button
+        type="submit"
+        size="lg"
+        disabled={loginMutation.isPending}
+        className="h-12 w-full rounded-xl text-sm font-bold shadow-lg shadow-primary/15"
+      >
+        {loginMutation.isPending ? "Entrando..." : "Entrar no sistema"}
+      </Button>
+    </form>
   );
 }
 
@@ -90,9 +157,7 @@ function LoginExperience() {
               Acompanhe os itens adquiridos pela CASSEMS, gerencie permissões de acesso ou informe propostas comerciais pelo perfil Fornecedor.
             </p>
 
-            <Button onClick={() => startLogin()} size="lg" className="mt-9 h-12 w-full rounded-xl text-sm font-bold shadow-lg shadow-primary/15">
-              Entrar no sistema
-            </Button>
+            <LoginForm />
 
             <div className="mt-8 grid grid-cols-[0.85fr_1.15fr] gap-3 text-xs text-muted-foreground">
               <div className="rounded-xl border bg-white/70 p-3">

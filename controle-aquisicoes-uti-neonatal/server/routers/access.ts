@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { adminProcedure, protectedProcedure, router } from "../_core/trpc";
-import { getEffectivePermissions, getSupplierProfile, listUsersWithAccess, updateUserAccess } from "../db";
+import { createLocalUser, getEffectivePermissions, getSupplierProfile, listUsersWithAccess, updateUserAccess } from "../db";
 import { permissionKeys } from "../permissions";
 
 const permissionsInput = z.object(
@@ -17,6 +17,24 @@ export const accessRouter = router({
     supplierProfile: await getSupplierProfile(ctx.user.id),
   })),
   listUsers: adminProcedure.query(() => listUsersWithAccess()),
+  createUser: adminProcedure
+    .input(z.object({
+      email: z.string().trim().email("Email inválido"),
+      password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+      name: z.string().trim().max(255).nullable().transform(value => value || null),
+      role: z.enum(["user", "admin", "supplier"]),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        await createLocalUser(input);
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error instanceof Error ? error.message : "Não foi possível criar o usuário.",
+        });
+      }
+      return listUsersWithAccess();
+    }),
   updateUser: adminProcedure
     .input(z.object({
       userId: z.number().int().positive(),
@@ -34,4 +52,3 @@ export const accessRouter = router({
       return updateUserAccess({ ...input, updatedBy: ctx.user.id });
     }),
 });
-

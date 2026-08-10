@@ -44,7 +44,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
   const values: InsertUser = { openId: user.openId };
   const updateSet: Record<string, unknown> = {};
-  const textFields = ["name", "email", "loginMethod"] as const;
+  const textFields = ["name", "email", "loginMethod", "passwordHash"] as const;
 
   textFields.forEach(field => {
     if (user[field] === undefined) return;
@@ -76,6 +76,71 @@ export async function getUserByOpenId(openId: string) {
   if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   return result[0];
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result[0];
+}
+
+/**
+ * Ensures a local admin account exists, using ADMIN_EMAIL / ADMIN_PASSWORD.
+ * Runs on server startup. Safe to call every boot: re-hashes and updates the
+ * password each time so rotating ADMIN_PASSWORD and redeploying takes effect.
+ */
+export async function ensureAdminUser() {
+  if (!ENV.adminEmail || !ENV.adminPassword) {
+    console.warn("[Auth] ADMIN_EMAIL / ADMIN_PASSWORD not set — no local admin account will be created.");
+    return;
+  }
+  const db = await getDb();
+  if (!db) return;
+
+  const email = ENV.adminEmail.trim().toLowerCase();
+  const { hashPassword } = await import("./_core/password");
+  const passwordHash = await hashPassword(ENV.adminPassword);
+  const openId = `local:${email}`;
+
+  await upsertUser({
+    openId,
+    email,
+    name: ENV.ownerName,
+    passwordHash,
+    role: "admin",
+    loginMethod: "password",
+  });
+  console.log(`[Auth] Local admin account ready for ${email}`);
+}
+
+/** Admin-created local account (email + password), no OAuth involved. */
+export async function createLocalUser(input: {
+  email: string;
+  password: string;
+  name: string | null;
+  role: "user" | "admin" | "supplier";
+}) {
+  const db = await requireDb();
+  const email = input.email.trim().toLowerCase();
+  const existing = await getUserByEmail(email);
+  if (existing) throw new Error("Já existe uma conta com este email.");
+
+  const { hashPassword } = await import("./_core/password");
+  const passwordHash = await hashPassword(input.password);
+  const openId = `local:${email}`;
+
+  await db.insert(users).values({
+    openId,
+    email,
+    name: input.name,
+    passwordHash,
+    role: input.role,
+    loginMethod: "password",
+    lastSignedIn: new Date(),
+  });
+
+  return getUserByEmail(email);
 }
 
 export async function listEquipmentWithStages() {

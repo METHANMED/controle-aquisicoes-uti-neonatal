@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { trpc } from "@/lib/trpc";
-import { Building2, Loader2, LockKeyhole, Pencil, ShieldCheck, Store, UserCheck, UserCog, UserX } from "lucide-react";
+import { Building2, Loader2, LockKeyhole, Pencil, ShieldCheck, Store, UserCheck, UserCog, UserPlus, UserX } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -60,6 +60,7 @@ export default function AdminAccess() {
   const { user: currentUser } = useAuth();
   const query = trpc.access.listUsers.useQuery();
   const [editing, setEditing] = useState<AccessUser | null>(null);
+  const [creating, setCreating] = useState(false);
   const users = (query.data ?? []) as AccessUser[];
   const stats = useMemo(() => ({
     total: users.length,
@@ -70,7 +71,10 @@ export default function AdminAccess() {
 
   return (
     <div className="enter-soft">
-      <PageHeader eyebrow="Administração do sistema" title="Pessoas e permissões" description="Defina, para cada pessoa, o perfil e exatamente quais módulos, documentos e valores poderão ser visualizados ou alterados." />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PageHeader eyebrow="Administração do sistema" title="Pessoas e permissões" description="Defina, para cada pessoa, o perfil e exatamente quais módulos, documentos e valores poderão ser visualizados ou alterados." />
+        <Button onClick={() => setCreating(true)} className="rounded-xl"><UserPlus className="mr-2 h-4 w-4" />Novo acesso</Button>
+      </div>
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
@@ -109,7 +113,68 @@ export default function AdminAccess() {
       )}
 
       <AccessDialog user={editing} currentUserId={currentUser?.id} onOpenChange={open => !open && setEditing(null)} />
+      <CreateUserDialog open={creating} onOpenChange={setCreating} />
     </div>
+  );
+}
+
+function CreateUserDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const utils = trpc.useUtils();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [role, setRole] = useState<Role>("user");
+
+  const mutation = trpc.access.createUser.useMutation({
+    onSuccess: async () => {
+      await Promise.all([utils.access.listUsers.invalidate(), utils.access.me.invalidate()]);
+    },
+  });
+
+  const reset = () => { setEmail(""); setPassword(""); setName(""); setRole("user"); };
+
+  const save = async () => {
+    try {
+      await mutation.mutateAsync({ email: email.trim(), password, name: name.trim() || null, role });
+      toast.success("Acesso criado. Compartilhe o email e a senha com a pessoa.");
+      reset();
+      onOpenChange(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível criar o acesso.");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={next => { onOpenChange(next); if (!next) reset(); }}>
+      <DialogContent className="rounded-2xl sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl">Novo acesso</DialogTitle>
+          <DialogDescription>Cria um login por email e senha. Depois de criado, defina as permissões clicando em "Configurar".</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-2">
+          <div className="space-y-2"><Label htmlFor="new-user-name">Nome</Label><Input id="new-user-name" value={name} onChange={event => setName(event.target.value)} placeholder="Nome da pessoa" /></div>
+          <div className="space-y-2"><Label htmlFor="new-user-email">Email</Label><Input id="new-user-email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="pessoa@exemplo.com" /></div>
+          <div className="space-y-2"><Label htmlFor="new-user-password">Senha</Label><Input id="new-user-password" type="password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Mínimo 6 caracteres" /></div>
+          <div className="space-y-2">
+            <Label>Perfil</Label>
+            <Select value={role} onValueChange={value => setRole(value as Role)}>
+              <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Gerenciamento</SelectItem>
+                <SelectItem value="user">Acompanhamento</SelectItem>
+                <SelectItem value="supplier">Fornecedor</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>Cancelar</Button>
+          <Button onClick={save} disabled={mutation.isPending || !email.trim() || password.length < 6}>
+            {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Criar acesso
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
